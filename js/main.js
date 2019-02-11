@@ -1,36 +1,54 @@
 /* JS for WATS 3020 Roster Project */
 
-///////////////////////////////////////////////////
-//////// TODOs ///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-// Fill in the blanks below to complete each TODO task.                       //
-////////////////////////////////////////////////////////////////////////////////
+class Person
+{
+    constructor(personName, personEmail)
+    {
+        this.name = personName;
+        this.email = personEmail;
+        this.username = personEmail.split('@', 1)[0];
+    }
+}
 
-// TODO: Create a base class called `Person` that takes the parameters `name`
-// and `email` and makes those available as attributes. The `constructor()`
-// method should also break the username from before the `@` symbol in the
-// `email` value and use that to store on a `this.username` property.
+class Student extends Person
+{
+    constructor(studentName, studentEmail)
+    {
+        super(studentName, studentEmail);
+        this.attendance = [];
+        console.log(this);
+    }
 
-// TODO: Create another class that extends the `Person` class called `Student`.
-// The `Student` class should add a line to the `constructor()` method that sets
-// the property `this.attendance` to an empty Array (`[ ]`). The `attendance`
-// property will be used to record and track attendance. (NOTE: You will need to
-// use the `super()` command so you don't lose the functionality of the
-// `constructor()` method from the `Person` class.)
-//
+    calculateAttendance()
+    //returns a string percentage of attendance, to two decimal places
+    {
+        let attendanceDays = 0;
+        for (let count = 0; count < this.attendance.length; count++)
+        {
+            attendanceDays += this.attendance[count];
+        }
+        // I did not like that students would have their attendance listed as NaN
+        // This if-then statement just corrects that.
+        if (this.attendance.length == 0)
+        {
+            return '0.00%';
+        }
+        else
+        {
+            return (100 * attendanceDays / this.attendance.length).toFixed(2) + "%";
+        }
+        
+    }
+}
 
-
-// TODO: Create another method on the `Student` class called `calculateAttendance`.
-// This method should give a percentage of how many days the student was present.
-// It should return a string like "90%" or "84.732%". Attendance should be
-// recorded into an Array using either a `0` for "absent" or a `1` for "present".
-// This should allow attendance percentage to be calculated as the average of
-// all the items in the `attendance` Array.
-
-
-// TODO: Create another class that extends the `Person` class called `Teacher`.
-// The `Teacher` class should add a property called `this.honorific` (supplied
-// when an instance of `Teacher` is created).
+class Teacher extends Person
+{
+    constructor(teacherName, teacherEmail, teacherHonorific)
+    {
+        super(teacherName, teacherEmail);
+        this.honorific = teacherHonorific;
+    }
+}
 
 
 // TODO: Set up our Course class so we can run the whole roster from it.
@@ -43,47 +61,55 @@ class Course {
         this.students = [];
     }
 
-    /////////////////////////////////////////
-    // TODO: ADD the `addStudent()` method /////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // Create a method called `addStudent()` that prompts the user for
-    // information required to create a new `Student` object (`name`, `email`)
-    // and does so, then adds the student to the `this.students` Array. Be sure
-    // to update the roster display by calling `updateRoster()`. You will need
-    // to reference the Class instance using `this` as a parameter for
-    // `updateRoster()`, so it might look like this: `updateRoster(this)`.
+    addStudent()
+    {
+        let newStudentName = prompt('Please enter the new student name:', 'Jane Student');
+        let newStudentEmail = prompt('Please enter the new student email address:', 'jstudent@colleg.edu');
+        this.students.push(new Student(newStudentName, newStudentEmail));
+        updateRoster(this);
+    }
 
+    removeStudent(username)
+    {
+        let outStudent = this.findStudent(username);
+        let outIndex = this.students.indexOf(outStudent);
+        this.students.splice(outIndex, 1);
+    }
 
-    /////////////////////////////////////////
-    // TODO: ADD the `setTeacher()` method /////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // Create a method called `setTeacher()` that prompts the user for the
-    // information required to create a `Teacher` object (`name`, `email`) and
-    // does so, then sets the `this.teacher` property equal to the new `Teacher` object.
+    setTeacher()
+    {
+        let newTeacherName = prompt('Please enter the name of the teacher:', 'Tammy Teacher');
+        let newTeacherEmail = prompt('Please enter the email address of the teacher:', 'tteacher@college.edu');
+        let newTeacherHonorific = prompt('Please enter the honorific for the teacher:', 'Professor');
+        this.teacher = new Teacher(newTeacherName, newTeacherEmail, newTeacherHonorific);
+        //not specified in the TODO but it seemed relevant
+        updateRoster(this);
+    }
 
+    removeTeacher()
+    {
+        this.teacher = null;
+        updateRoster(this);
+    }
 
-    /////////////////////////////////////////
-    // TODO: ADD `markAttendance()` method /////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // TODO: Create a method to mark a student's attendance called `markAttendance()`.
-    // This method should accept a parameter called `username` containing the
-    // `username` that will match the `username` property on the `Student` object.
+    markAttendance(username, status = 'present')
+    // I actually found the TODO for this method to be unclear.
+    // In the code, markAttendance gets called one of two ways:
+    // It either has one parameter (the username), signifying the student is present
+    // Or it is called with two params, with the second one being the string 'absent'
+    // Honestly, that's bizarre to me. But, either way, the method works.
+    {
+        let markedStudent = this.findStudent(username);
+        if (status == 'present')
+        {
+            markedStudent.attendance.push(1);
+        }
+        else if (status == 'absent')
+        {
+            markedStudent.attendance.push(0);
+        }
 
-    // TODO: The FIRST step to create a functioning `markAttendance()` method is
-    // to retreive the `Student` object out of the `this.students` Array. You
-    // can use the `this.findStudent()` method (provided below) to accomplish
-    // that goal. Note that you will also have to handle two cases: The default
-    // behavior should be to mark the student present. The alternate behavior
-    // should be to mark the student absent.
-
-    // TODO: Now that we have retrieved the specific `Student` object we want
-    // to work with, we can use the appropriate method on the `Student` object
-    // to record the attendance.
-
-
+    }
 
     //////////////////////////////////////////////
     // Methods provided for you -- DO NOT EDIT /////////////////////////////////
@@ -100,22 +126,12 @@ class Course {
     }
 }
 
-/////////////////////////////////////////
-// TODO: Prompt User for Course Info  //////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-//
-// Prompt the user for information to create the Course. In order to create a
-// `Course` object, you must gather the following information:
-//
-// TODO: Prompt the user for the `courseCode` (the number/code of the course, like "WATS 3000").
+// Prompt user for Course information (code, title, description)
+let myCourseCode = prompt('Please enter the course code for this course:', 'WATS 3020');
+let myCourseTitle = prompt('Please enter the title for thise course:', 'Introduction to JavaScript');
+let myCourseDescription = prompt('Please enter the description of this course:', 'An introductory course in JavaScript programming.');
 
-// TODO: Prompt the user for the `courseTitle` (the name of the course, like "Introduction to JavaScript").
-
-// TODO: Prompt the user for the  `courseDescription` (the descriptive summary of the course).
-
-// Create a new `Course` object instance called `myCourse` using the three data points just collected from the user.
-// TODO: Add in the values for the information supplied by the user above.
-
+let myCourse = new Course(myCourseCode, myCourseTitle, myCourseDescription);
 
 ///////////////////////////////////////////////////
 //////// Main Script /////////////////////////////
@@ -155,6 +171,13 @@ let addTeacherButton = document.querySelector('#add-teacher');
 addTeacherButton.addEventListener('click', function(e){
     console.log('Calling setTeacher() method.');
     myCourse.setTeacher();
+})
+
+// Added an event listener for removing a teacher.
+let removeTeacherButton = document.querySelector('#remove-teacher');
+removeTeacherButton.addEventListener('click', function(e){
+    console.log('Calling removeTeacher() method.');
+    myCourse.removeTeacher();
 })
 
 // Call Update Roster to initialize the content of the page.
@@ -202,6 +225,12 @@ function updateRoster(course){
         absentButton.setAttribute('class', 'absent');
         actionsTD.appendChild(absentButton);
 
+        let removeButton = document.createElement('button');
+        removeButton.innerHTML = "Remove";
+        removeButton.setAttribute('data-username', student.username);
+        removeButton.setAttribute('class', 'remove');
+        actionsTD.appendChild(removeButton);
+
         newTR.appendChild(actionsTD);
 
         // Append the new row to the roster table.
@@ -226,6 +255,14 @@ function setupAttendanceButtons(){
         button.addEventListener('click', function(e){
             console.log(`Marking ${e.target.dataset.username} absent.`);
             myCourse.markAttendance(e.target.dataset.username, 'absent');
+            updateRoster(myCourse);
+        });
+    }
+    let removeButtons = document.querySelectorAll('.remove');
+    for (button of removeButtons){
+        button.addEventListener('click', function(e){
+            console.log(`Removing ${e.target.dataset.username}.`);
+            myCourse.removeStudent(e.target.dataset.username);
             updateRoster(myCourse);
         });
     }
