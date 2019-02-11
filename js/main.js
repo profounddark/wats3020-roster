@@ -64,7 +64,7 @@ class Course {
     addStudent()
     {
         let newStudentName = prompt('Please enter the new student name:', 'Jane Student');
-        let newStudentEmail = prompt('Please enter the new student email address:', 'jstudent@colleg.edu');
+        let newStudentEmail = prompt('Please enter the new student email address:', 'jstudent@college.edu');
         this.students.push(new Student(newStudentName, newStudentEmail));
         updateRoster(this);
     }
