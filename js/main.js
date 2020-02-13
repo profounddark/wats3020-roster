@@ -7,6 +7,7 @@ class Person
         this.name = personName;
         this.email = personEmail;
         this.username = personEmail.split('@', 1)[0];
+        this.ID = Date.now();
     }
 }
 
@@ -69,9 +70,9 @@ class Course {
         updateRoster(this);
     }
 
-    removeStudent(username)
+    removeStudent(ID)
     {
-        let outStudent = this.findStudent(username);
+        let outStudent = this.findStudent(ID);
         let outIndex = this.students.indexOf(outStudent);
         this.students.splice(outIndex, 1);
     }
@@ -92,14 +93,14 @@ class Course {
         updateRoster(this);
     }
 
-    markAttendance(username, status = 'present')
+    markAttendance(ID, status = 'present')
     // I actually found the TODO for this method to be unclear.
     // In the code, markAttendance gets called one of two ways:
     // It either has one parameter (the username), signifying the student is present
     // Or it is called with two params, with the second one being the string 'absent'
     // Honestly, that's bizarre to me. But, either way, the method works.
     {
-        let markedStudent = this.findStudent(username);
+        let markedStudent = this.findStudent(ID);
         if (status == 'present')
         {
             markedStudent.attendance.push(1);
@@ -115,13 +116,14 @@ class Course {
     // Methods provided for you -- DO NOT EDIT /////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    findStudent(username){
+    findStudent(ID){
         // This method provided for convenience. It takes in a username and looks
         // for that username on student objects contained in the `this.students`
         // Array.
         let foundStudent = this.students.find(function(student, index){
-            return student.username == username;
+            return student.ID == ID;
         });
+        console.log(foundStudent);
         return foundStudent;
     }
 }
@@ -215,19 +217,19 @@ function updateRoster(course){
         let actionsTD = document.createElement('td');
         let presentButton = document.createElement('button');
         presentButton.innerHTML = "Present";
-        presentButton.setAttribute('data-username', student.username);
+        presentButton.setAttribute('data-ID', student.ID);
         presentButton.setAttribute('class', 'present');
         actionsTD.appendChild(presentButton);
 
         let absentButton = document.createElement('button');
         absentButton.innerHTML = "Absent";
-        absentButton.setAttribute('data-username', student.username);
+        absentButton.setAttribute('data-ID', student.ID);
         absentButton.setAttribute('class', 'absent');
         actionsTD.appendChild(absentButton);
 
         let removeButton = document.createElement('button');
         removeButton.innerHTML = "Remove";
-        removeButton.setAttribute('data-username', student.username);
+        removeButton.setAttribute('data-ID', student.ID);
         removeButton.setAttribute('class', 'remove');
         actionsTD.appendChild(removeButton);
 
@@ -245,24 +247,25 @@ function setupAttendanceButtons(){
     let presentButtons = document.querySelectorAll('.present');
     for (button of presentButtons){
         button.addEventListener('click', function(e){
-            console.log(`Marking ${e.target.dataset.username} present.`);
-            myCourse.markAttendance(e.target.dataset.username);
+            console.log(e.target.dataset);
+            console.log(`Marking ${e.target.dataset.id} present.`);
+            myCourse.markAttendance(e.target.dataset.id);
             updateRoster(myCourse);
         });
     }
     let absentButtons = document.querySelectorAll('.absent');
     for (button of absentButtons){
         button.addEventListener('click', function(e){
-            console.log(`Marking ${e.target.dataset.username} absent.`);
-            myCourse.markAttendance(e.target.dataset.username, 'absent');
+            console.log(`Marking ${e.target.dataset.id} absent.`);
+            myCourse.markAttendance(e.target.dataset.id, 'absent');
             updateRoster(myCourse);
         });
     }
     let removeButtons = document.querySelectorAll('.remove');
     for (button of removeButtons){
         button.addEventListener('click', function(e){
-            console.log(`Removing ${e.target.dataset.username}.`);
-            myCourse.removeStudent(e.target.dataset.username);
+            console.log(`Removing ${e.target.dataset.id}.`);
+            myCourse.removeStudent(e.target.dataset.id);
             updateRoster(myCourse);
         });
     }
